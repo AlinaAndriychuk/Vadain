@@ -70,5 +70,10 @@
     "raw-loader": "^1.0.0",
     "require-yaml": "^0.0.1",
     "lodash": "^4.17.11"
+  },
+  "dependencies": {
+    "gsap": "^3.6.0",
+    "intrinsic-scale": "^3.0.4",
+    "pixi.js": "^5.3.7"
   }
 }

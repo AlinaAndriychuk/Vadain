@@ -16,6 +16,7 @@
 ._*
 Thumbs.db
 .cache
+.netlify
 .project
 .settings
 .tmproj
@@ -31,3 +32,6 @@ nbproject
 _tmp
 node_modules
 bower_components
+
+# Local Netlify folder
+.netlify

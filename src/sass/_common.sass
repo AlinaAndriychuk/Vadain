@@ -1,3 +1,39 @@
+$mainTheme: #f8f7ef
+$darkGray: #4d5c5e
+$gray: #88979c
+$darkOrange: #c9a36f
+$beige: #ecdbce
+$lightBeige: #f3ece1
+$lightYellow: #f2ecd3
+$lightBrown: #e3cea9
+
 body
-	margin: 0
-	background: #ffb1f3
+  margin: 0
+  padding: 0
+  
+.animation-block
+  background-color: $mainTheme
+  height: 100vh
+
+  &__controls
+    position: absolute
+    padding: 20px
+    z-index: 10
+
+  &__button
+    background-color: $gray
+    padding: 5px 10px 
+
+    font-size: 16px
+    color: $lightBeige
+
+    border: 1px solid $darkGray
+    border-radius: 5px
+    cursor: pointer
+
+    &:hover
+      background-color: $lightBrown
+      color: $darkGray
+
+    &:focus
+      outline: none
