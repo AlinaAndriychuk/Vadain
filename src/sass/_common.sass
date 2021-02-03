@@ -1,39 +1,56 @@
-$mainTheme: #f8f7ef
-$darkGray: #4d5c5e
-$gray: #88979c
-$darkOrange: #c9a36f
-$beige: #ecdbce
-$lightBeige: #f3ece1
-$lightYellow: #f2ecd3
-$lightBrown: #e3cea9
-
-body
-  margin: 0
-  padding: 0
-  
-.animation-block
+.animation
   background-color: $mainTheme
   height: 100vh
+  font-family: 'Rufina', Arial, serif;
 
-  &__controls
+  &-controls
     position: absolute
     padding: 20px
     z-index: 10
 
-  &__button
-    background-color: $gray
-    padding: 5px 10px 
+    &__button
+      background-color: $darkGray
+      padding: 5px 10px 
 
-    font-size: 16px
-    color: $lightBeige
+      font-size: 16px
+      color: $mainTheme
 
-    border: 1px solid $darkGray
-    border-radius: 5px
-    cursor: pointer
+      border: 1px solid $darkGray
+      border-radius: 5px
+      cursor: pointer
 
-    &:hover
-      background-color: $lightBrown
+      &:hover
+        background-color: $mainTheme
+        color: $darkGray
+
+      &:focus
+        outline: none
+
+  &-canvas
+    height: 100%
+    width: 100%
+    position: absolute
+    // z-index: 10
+
+  &-titles
+    position: relative
+    height: 100%
+    width: 100%
+    font-size: 20px
+
+    &__wrapper
+      position: absolute
+      width: fit-content
+
+    &__header
       color: $darkGray
 
-    &:focus
-      outline: none
+      &_right
+        padding-left: 30px
+
+    &__text
+      line-height: 25px
+      
+      &_right
+        padding: 0 10px 2px 30px
+        border-radius: 0 10px 10px 0

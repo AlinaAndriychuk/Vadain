@@ -8,14 +8,60 @@
     <meta name="theme-color" content="#fff" />
     <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" media="all" href="css/app.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rufina:wght@700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <!-- BEGIN animation-block -->
-    <div class="animation-block" style="height: 100vh;">
-      <div class="animation-block__controls">
-        <button class="animation-block__button" id="playAnimation">Play</button>
-        <button class="animation-block__button" id="stopAnimation">Stop</button>
+    <!-- BEGIN animation -->
+    <div class="animation">
+      <!-- BEGIN animation-canvas -->
+      <div class="animation-canvas js-container">
       </div>
+      <!-- END animation-canvas -->
+      <div class="animation-controls">
+        <button class="animation-controls__button js-play">Play</button>
+        <button class="animation-controls__button js-stop">Stop</button>
+      </div>
+      <!-- BEGIN animation-titles -->
+      <div class="animation-titles js-titlesContainer">
+        <div class="animation-titles__wrapper js-rightTitle js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header"> Collection </p>
+            <p class="animation-titles__text js-text"> Family living </p>
+          </div>
+        </div>
+        <div class="animation-titles__wrapper js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header animation-titles__header_right"> Collection </p>
+            <p class="animation-titles__text animation-titles__text_right js-text"> Luxurious living </p>
+          </div>
+        </div>
+        <div class="animation-titles__wrapper js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header animation-titles__header_right"> Collection </p>
+            <p class="animation-titles__text animation-titles__text_right js-text"> Marketing and inspiration </p>
+          </div>
+        </div>
+        <div class="animation-titles__wrapper js-rightTitle js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header"> Collection </p>
+            <p class="animation-titles__text js-text"> Marketing and inspiration </p>
+          </div>
+        </div>
+        <div class="animation-titles__wrapper js-rightTitle js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header"> Collection </p>
+            <p class="animation-titles__text js-text"> Training and education </p>
+          </div>
+        </div>
+        <div class="animation-titles__wrapper js-title">
+          <div class="animation-title__content">
+            <p class="animation-titles__header animation-titles__header_right"> Collection </p>
+            <p class="animation-titles__text animation-titles__text_right js-text"> Youtful living </p>
+          </div>
+        </div>
+      </div>
+      <!-- END animation-titles -->
     </div>
     <!-- BEGIN animation-block -->
     <!-- BEGIN scripts -->
