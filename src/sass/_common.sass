@@ -30,27 +30,32 @@
     height: 100%
     width: 100%
     position: absolute
-    // z-index: 10
+    z-index: 10
 
   &-titles
     position: relative
     height: 100%
     width: 100%
-    font-size: 20px
+    font-size: 22px
+
+    &__content
+      position: relative
+      left: -100%
 
     &__wrapper
       position: absolute
       width: fit-content
+      overflow: hidden
 
     &__header
       color: $darkGray
 
       &_right
-        padding-left: 30px
+        padding-left: 40px
 
     &__text
-      line-height: 25px
+      line-height: 27px
       
       &_right
-        padding: 0 10px 2px 30px
-        border-radius: 0 10px 10px 0
+        padding: 0 15px 2px 40px
+        border-radius: 0 5px 5px 0

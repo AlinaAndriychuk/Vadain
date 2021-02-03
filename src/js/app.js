@@ -36,11 +36,11 @@ class Animation {
 
     this.titlesOptions = [
       {y: -50, x: 520, color: '#f8f7ef', background: '#88979c'},
-      {y: -50, x: 120, color: '#bf9c7a', background: '#f2edd3'},
+      {y: -30, x: 105, color: '#bf9c7a', background: '#f2edd3'},
       {y: -20, x: 90, color: '#fef9e8', background: '#e1cdab'},
       {y: 0, x: 600, color: '#b9987a', background: '#f3ebe0'},
       {y: -50, x: 460, color: '#525a58', background: '#eedacc'},
-      {y: -50, x: 100, color: '#b9987a', background: '#f3ebe0'},
+      {y: -80, x: 70, color: '#b9987a', background: '#f3ebe0'},
     ]
     
     this.canvas = new PIXI.Application({
@@ -182,7 +182,7 @@ class Animation {
       hover.interactive = true;
       hover.buttonMode = true;
 
-      hover.on('pointerover', this.mouseOverRoom.bind(this, hover));
+      hover.on('pointerover', this.debounce.bind(this, this.mouseOverRoom.bind(this, hover), 2000));
       hover.on('pointerout', this.mouseOffRoom.bind(this, hover));
     });
   }
@@ -220,12 +220,33 @@ class Animation {
     room.position.set(this.roomsOptions[index].x, newPositionY)
   }
 
+  debounce(f, ms) {
+    /* eslint no-param-reassign: ["error", { "props": false }] */
+
+    this.isCooldown = false;
+  
+    return () => {
+      if (this.isCooldown) return;
+  
+      // f.apply(this, arguments);
+  
+      // this.isCooldown = true;
+  
+      // setTimeout(() => this.isCooldown = false, ms);
+    };
+  
+  }
+
   mouseOverRoom(hover) {
-    gsap.to(hover.scale, {x: 0.6, y: 0.6, duration: 0.3})
-    console.log(this.container.scale.x)
+    const title = this.titles[this.hovers.indexOf(hover)].querySelector('.js-content');
+    gsap.to(title, {x: '100%', duration: 0.5});
+    gsap.to(hover.scale, {x: 0.6, y: 0.6, duration: 0.3});
+    console.log();
   }
 
   mouseOffRoom(hover) {
+    const title = this.titles[this.hovers.indexOf(hover)].querySelector('.js-content');
+    gsap.to(title, {x: '-100%', duration: 1});
     gsap.to(hover.scale, {x: 0.52, y: 0.52, duration: 0.3})
     console.log(this.container.scale.x)
   }
