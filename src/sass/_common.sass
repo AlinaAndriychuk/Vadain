@@ -38,24 +38,33 @@
     width: 100%
     font-size: 22px
 
-    &__content
-      position: relative
-      left: -100%
-
     &__wrapper
       position: absolute
       width: fit-content
       overflow: hidden
+      z-index: 10
+
+    &__content
+      position: relative
+      left: -100%
+      pointer-events: none;
+
+      &_right
+        left: auto
+        right: -100%
 
     &__header
       color: $darkGray
+      padding-left: 15px
 
-      &_right
-        padding-left: 40px
+      &_left
+        padding-left: 30px
 
     &__text
       line-height: 27px
+      padding: 0 30px 2px 15px
+      border-radius: 8px 0 0 8px
       
       &_right
-        padding: 0 15px 2px 40px
-        border-radius: 0 5px 5px 0
+        padding: 0 15px 2px 30px
+        border-radius: 0 8px 8px 0
