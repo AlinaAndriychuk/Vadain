@@ -182,7 +182,7 @@ class Animation {
       hover.interactive = true;
       hover.buttonMode = true;
 
-      hover.on('pointerover', this.debounce.bind(this, this.mouseOverRoom.bind(this, hover), 2000));
+      hover.on('pointerover', this.mouseOverRoom.bind(this, hover));
       hover.on('pointerout', this.mouseOffRoom.bind(this, hover));
     });
   }
@@ -220,35 +220,35 @@ class Animation {
     room.position.set(this.roomsOptions[index].x, newPositionY)
   }
 
-  debounce(f, ms) {
-    /* eslint no-param-reassign: ["error", { "props": false }] */
-
-    this.isCooldown = false;
-  
-    return () => {
-      if (this.isCooldown) return;
-  
-      // f.apply(this, arguments);
-  
-      // this.isCooldown = true;
-  
-      // setTimeout(() => this.isCooldown = false, ms);
-    };
-  
-  }
-
   mouseOverRoom(hover) {
     const title = this.titles[this.hovers.indexOf(hover)].querySelector('.js-content');
-    gsap.to(title, {x: '100%', duration: 0.5});
-    gsap.to(hover.scale, {x: 0.6, y: 0.6, duration: 0.3});
-    console.log();
+    gsap.to(title, {
+      x: '100%', 
+      duration: 0.5,
+      zIndex: 10
+    });
+
+    gsap.to(hover.scale, {
+      x: 0.6, 
+      y: 0.6, 
+      duration: 0.3
+    });
   }
 
   mouseOffRoom(hover) {
     const title = this.titles[this.hovers.indexOf(hover)].querySelector('.js-content');
-    gsap.to(title, {x: '-100%', duration: 1});
-    gsap.to(hover.scale, {x: 0.52, y: 0.52, duration: 0.3})
-    console.log(this.container.scale.x)
+
+    gsap.to(title, {
+      x: 0,
+      duration: 0.5,
+      zIndex: 'auto',
+    });
+
+    gsap.to(hover.scale, {
+      x: 0.52, 
+      y: 0.52, 
+      duration: 0.3
+    });
   }
 
   resize() {
