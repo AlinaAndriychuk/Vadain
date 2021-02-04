@@ -37,9 +37,12 @@
     height: 100%
     width: 100%
     font-size: 22px
+    +r(800) 
+      font-size: 18px
 
     &__wrapper
       position: absolute
+      max-width: fit-content
       width: fit-content
       overflow: hidden
       z-index: 10
@@ -64,6 +67,8 @@
       line-height: 27px
       padding: 0 30px 2px 15px
       border-radius: 8px 0 0 8px
+      +r(800) 
+        line-height: 20px
       
       &_right
         padding: 0 15px 2px 30px

@@ -29,18 +29,19 @@ class Animation {
       {x: 380, y: 363, yPath: 9, speed: 0.02, timer: 0},
       {x: 274, y: 237, yPath: 9, speed: 0.02, timer: 0},
       {x: 289, y: 490, yPath: -9, speed: 0.015, timer: 0},
-      {x: 0, y: 390, yPath: -9, speed: 0.015, timer: 0},
+      {x: 0, y: 560, yPath: -9, speed: 0.015, timer: 0},
+      {x: 215, y: 389, yPath: -9, speed: 0.015, timer: 0},
       {x: 661, y: 331, yPath: -6, speed: 0.015, timer: 0},
       {x: 554, y: 205, yPath: -6, speed: 0.015, timer: 0},
     ];
 
     this.titlesOptions = [
-      {x: 512, y: -35, color: '#f8f7ef', background: '#88979c'},
+      {x: -128, y: -35, color: '#f8f7ef', background: '#88979c'},
       {x: 106, y: -35, color: '#bf9c7a', background: '#f2edd3'},
       {x: 79, y: -10, color: '#fef9e8', background: '#e1cdab'},
-      {x: 597, y: -20, color: '#b9987a', background: '#f3ebe0'},
-      {x: 445, y: -60, color: '#525a58', background: '#eedacc'},
-      {x: 72, y: -80, color: '#b9987a', background: '#f3ebe0'},
+      {x: -73, y: -20, color: '#b9987a', background: '#f3ebe0'},
+      {x: -105, y: -60, color: '#525a58', background: '#eedacc'},
+      {x: 75, y: -80, color: '#b9987a', background: '#f3ebe0'},
     ]
     
     this.canvas = new PIXI.Application({
@@ -70,6 +71,7 @@ class Animation {
       const luxurious = new PIXI.Sprite(loader.resources['../img/rooms/luxurious.png'].texture);
       const marketing = new PIXI.Sprite(loader.resources['../img/rooms/marketing.png'].texture);
       const stairs = new PIXI.Sprite(loader.resources['../img/rooms/stairs.png'].texture);
+      const stairsRoom = new PIXI.Sprite(loader.resources['../img/rooms/stairsRoom.png'].texture);
       const terrace = new PIXI.Sprite(loader.resources['../img/rooms/terrace.png'].texture);
       const training = new PIXI.Sprite(loader.resources['../img/rooms/training.png'].texture);
       const windows = new PIXI.Sprite(loader.resources['../img/rooms/windows.png'].texture);
@@ -95,11 +97,12 @@ class Animation {
       this.container.addChild(training);
       this.container.addChild(stairsHover);
       this.container.addChild(stairs);
+      this.container.addChild(stairsRoom);
       this.container.addChild(luxuriousHover);
       this.container.addChild(luxurious);
 
       this.hovers = [familyHover, luxuriousHover, marketingHover, stairsHover, trainingHover, youtfulHover];
-      this.interactiveRooms = [family, luxurious, marketing, stairs, training, youtful];
+      this.interactiveRooms = [family, luxurious, marketing, stairsRoom, training, youtful];
       this.coordinateRooms();
       this.addSpriteListaners();
 
@@ -120,6 +123,7 @@ class Animation {
         '../img/rooms/secondFloor.png',
         '../img/rooms/marketing.png',
         '../img/rooms/stairs.png',
+        '../img/rooms/stairsRoom.png',
         '../img/rooms/terrace.png',
         '../img/rooms/training.png',
         '../img/rooms/youtful.png',
@@ -138,23 +142,6 @@ class Animation {
     this.stopButton.addEventListener('click', this.stop.bind(this));
   }
 
-  coordinateTitles() {
-    this.hovers.forEach( (hover, index) => {
-      const title = this.titles[index];
-      const options = this.titlesOptions[index];
-      const xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth);
-      const yPosition = hover.getGlobalPosition().y + (this.container.height * options.y / this.containerHeight);
-
-      if(title.classList.contains('js-rightTitle')) {
-        title.style.right = `${xPosition  }px`;
-      } else {
-        title.style.left = `${xPosition  }px`;
-      }
-
-      title.style.top = `${yPosition  }px`;
-    })
-  }
-
   styleTitles() {
     this.titles.forEach( (title, index) => {
       const text = title.querySelector('.js-text')
@@ -171,7 +158,43 @@ class Animation {
     this.container.height = height;
     this.container.position.set(x, y);
     
-    this.coordinateTitles();
+    this.changeTitles();
+  }
+
+  changeTitles() {
+    const padding = 10;
+
+    this.hovers.forEach( (hover, index) => {
+      const title = this.titles[index];
+      const options = this.titlesOptions[index];
+      let computedStyle = getComputedStyle(title);
+
+      let xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth);
+      const yPosition = hover.getGlobalPosition().y + (this.container.height * options.y / this.containerHeight);
+
+      if(title.classList.contains('js-rightTitle')) {
+        if(this.width < xPosition + parseFloat(computedStyle.width) + padding) {
+          const newTitleWidth = this.width - xPosition - padding;
+          title.style.width = `${newTitleWidth }px`;
+
+        } else {
+          title.style.width = `${parseFloat(computedStyle.width) + padding }px`;
+        }
+      } else if(xPosition - parseFloat(computedStyle.width) - padding <= 0) {
+        const newTitleWidth = xPosition - padding;
+        title.style.width = `${newTitleWidth }px`;
+
+        xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth) - newTitleWidth;
+      } else {
+        title.style.width = `${parseFloat(computedStyle.width) + padding }px`;
+        computedStyle = getComputedStyle(title);
+
+        xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth) - parseFloat(computedStyle.width);
+      }
+
+      title.style.left = `${xPosition  }px`;
+      title.style.top = `${yPosition  }px`;
+    })
   }
 
   addSpriteListaners() {
@@ -228,12 +251,12 @@ class Animation {
     if( title.classList.contains('js-rightTitle') ) {
       gsap.to(title, {
         duration: 0.4,
-        x: '-100%',
+        x: '100%',
       });
     } else {
       gsap.to(title, {
         duration: 0.4,
-        x: '100%',
+        x: '-100%',
       })
     }
 
