@@ -14,6 +14,8 @@ class Animation {
     this.playButton = playButton;
     this.stopButton = stopButton;
     this.stopAnimation = false;
+    this.previousWidth = this.width;
+    this.previousHeight = this.height;
 
     this.roomsOptions = [
       {x: 730, y: 10, yPath: 10, speed: 0.01, timer: 0},
@@ -45,12 +47,12 @@ class Animation {
     ];
 
     this.cloudsOptions = [
-      {x: 100, y: 200},
-      {x: 700, y: 200},
-      {x: 100, y: 550},
-      {x: 700, y: 650},
-      {x: 0, y: 1000},
-      {x: 900, y: 300},
+      {x: 150, y: 400},
+      {x: 600, y: 600},
+      {x: 150, y: 800},
+      {x: 850, y: 770},
+      {x: 350, y: 1600},
+      {x: 100, y: 1500},
     ];
     
     this.canvas = new PIXI.Application({
@@ -242,8 +244,12 @@ class Animation {
 
   coordinateClouds() {
     this.clouds.forEach( (cloud, index) => {
-      cloud.scale.set(0.7)
-      cloud.position.set(this.cloudsOptions[index].x, this.cloudsOptions[index].y);
+      // const xPosition = this.cloudsOptions[index].x * this.width / 100;
+      // const yPosition = this.cloudsOptions[index].y * this.height / 100;
+      const xPosition = this.cloudsOptions[index].x;
+      const yPosition = this.cloudsOptions[index].y;
+      cloud.anchor.set(0.5);
+      cloud.position.set(xPosition, yPosition);
     });
   }
 
@@ -307,11 +313,14 @@ class Animation {
 
   changeClouds() {
     this.clouds.forEach( cloud => {
-      const proportionalWidth = this.container.width * 0.7 / this.containerWidth ;
-      const newHeight = this.container.height * cloud.height / this.containerHeight;
+      const proportionalContainerWidth = this.container.width * 0.7 / this.containerWidth ;
 
-      const coefficient = Math.max(proportionalWidth, 0.3);
-      cloud.scale.set(coefficient)
+      const scaleCoefficient = Math.max(proportionalContainerWidth, 0.3);
+      cloud.scale.set(scaleCoefficient);
+
+      const xPosition = cloud.x * this.width / this.previousWidth;
+      const yPosition = cloud.y * this.height / this.previousHeight;
+      cloud.position.set(xPosition, yPosition);
     })
   }
 
@@ -354,12 +363,15 @@ class Animation {
     let newPositionY;
     let newPositionX;
 
-    if(cloud.y < -cloud.height){
+    if (cloud.y < -cloud.height) {
+      newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
+      newPositionX = -cloud.width;
+    } else if (cloud.x - cloud.width > this.width) {
       newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
       newPositionX = -cloud.width;
     } else {
-      newPositionY = cloud.y - 0.3;
-      newPositionX = cloud.x + 0.3;
+      newPositionY = cloud.y - 3;
+      newPositionX = cloud.x + 3;
     }
 
     cloud.position.set(newPositionX, newPositionY);
@@ -407,6 +419,8 @@ class Animation {
   }
 
   resize() {
+    this.previousWidth = this.width;
+    this.previousHeight = this.height;
     this.width = this.animationContainer.clientWidth;
     this.height = this.animationContainer.clientHeight;
 
