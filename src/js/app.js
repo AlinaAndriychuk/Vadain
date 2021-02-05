@@ -1,19 +1,19 @@
 import * as PIXI from 'pixi.js';
-import {contain} from 'intrinsic-scale';
-import gsap from "gsap";
+import { contain } from 'intrinsic-scale';
+import gsap from 'gsap';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import sayHello from './lib/sayHello';
 
 class Animation {
 
-  constructor({container, playButton, stopButton, titlesContainer}) {
+  constructor({container, playButton, stopButton, titles}) {
     this.animationContainer = container;
+    this.titles = titles;
     this.width = this.animationContainer.clientWidth;
     this.height = this.animationContainer.clientHeight;
     this.playButton = playButton;
     this.stopButton = stopButton;
     this.stopAnimation = false;
-    this.titlesContainer = titlesContainer;
-    this.titles = this.titlesContainer.querySelectorAll('.js-title');
 
     this.roomsOptions = [
       {x: 730, y: 10, yPath: 10, speed: 0.01, timer: 0},
@@ -39,10 +39,10 @@ class Animation {
       {x: -128, y: -35, color: '#f8f7ef', background: '#88979c'},
       {x: 106, y: -35, color: '#bf9c7a', background: '#f2edd3'},
       {x: 79, y: -10, color: '#fef9e8', background: '#e1cdab'},
-      {x: -73, y: -20, color: '#b9987a', background: '#f3ebe0'},
+      {x: -74, y: -20, color: '#b9987a', background: '#f3ebe0'},
       {x: -105, y: -60, color: '#525a58', background: '#eedacc'},
       {x: 75, y: -80, color: '#b9987a', background: '#f3ebe0'},
-    ]
+    ];
     
     this.canvas = new PIXI.Application({
       width: this.width, 
@@ -53,6 +53,7 @@ class Animation {
       resolution: window.devicePixelRatio || 1,
       transparent: true,
     });
+
     this.container = new PIXI.Container();
 
     this.init()
@@ -60,61 +61,27 @@ class Animation {
 
   init() {
     window.addEventListener("resize", this.resize.bind(this));
+    this.playButton.addEventListener('click', this.play.bind(this));
+    this.stopButton.addEventListener('click', this.stop.bind(this));
 
     this.canvas.stage.addChild(this.container);
     this.animationContainer.appendChild(this.canvas.view);
 
-    const setup = loader => {
-      const family = new PIXI.Sprite(loader.resources['../img/rooms/family.png'].texture);
-      const floor = new PIXI.Sprite(loader.resources['../img/rooms/floor.png'].texture);
-      const secondFloor = new PIXI.Sprite(loader.resources['../img/rooms/secondFloor.png'].texture);
-      const luxurious = new PIXI.Sprite(loader.resources['../img/rooms/luxurious.png'].texture);
-      const marketing = new PIXI.Sprite(loader.resources['../img/rooms/marketing.png'].texture);
-      const stairs = new PIXI.Sprite(loader.resources['../img/rooms/stairs.png'].texture);
-      const stairsRoom = new PIXI.Sprite(loader.resources['../img/rooms/stairsRoom.png'].texture);
-      const terrace = new PIXI.Sprite(loader.resources['../img/rooms/terrace.png'].texture);
-      const training = new PIXI.Sprite(loader.resources['../img/rooms/training.png'].texture);
-      const windows = new PIXI.Sprite(loader.resources['../img/rooms/windows.png'].texture);
-      const youtful = new PIXI.Sprite(loader.resources['../img/rooms/youtful.png'].texture);
-      const familyHover = new PIXI.Sprite(loader.resources['../img/hover/family1.png'].texture);
-      const luxuriousHover = new PIXI.Sprite(loader.resources['../img/hover/luxurious1.png'].texture);
-      const marketingHover = new PIXI.Sprite(loader.resources['../img/hover/marketing1.png'].texture);
-      const stairsHover = new PIXI.Sprite(loader.resources['../img/hover/stairs1.png'].texture);
-      const trainingHover = new PIXI.Sprite(loader.resources['../img/hover/training1.png'].texture);
-      const youtfulHover = new PIXI.Sprite(loader.resources['../img/hover/youtful1.png'].texture);
+    this.loadImages();
+    this.styleTitles();
+  }
 
-      this.container.addChild(windows);
-      this.container.addChild(familyHover);
-      this.container.addChild(family);
-      this.container.addChild(floor);
-      this.container.addChild(secondFloor);
-      this.container.addChild(terrace);
-      this.container.addChild(youtfulHover);
-      this.container.addChild(youtful);
-      this.container.addChild(marketingHover);
-      this.container.addChild(marketing);
-      this.container.addChild(trainingHover);
-      this.container.addChild(training);
-      this.container.addChild(stairsHover);
-      this.container.addChild(stairs);
-      this.container.addChild(stairsRoom);
-      this.container.addChild(luxuriousHover);
-      this.container.addChild(luxurious);
+  styleTitles() {
+    this.titles.forEach( (title, index) => {
+      const text = title.querySelector('.js-text')
+      const options = this.titlesOptions[index];
 
-      this.hovers = [familyHover, luxuriousHover, marketingHover, stairsHover, trainingHover, youtfulHover];
-      this.interactiveRooms = [family, luxurious, marketing, stairsRoom, training, youtful];
-      this.coordinateRooms();
-      this.addSpriteListaners();
+      text.style.backgroundColor = options.background;
+      text.style.color = options.color;
+    })
+  }
 
-      const rect = new PIXI.Graphics(); // Empty right space
-      rect.drawRect(this.container.width, 0, 200, 200);
-      this.container.addChild(rect);
-
-      this.containerWidth = this.container.width;
-      this.containerHeight = this.container.height;
-      this.resizeContainer();
-    }
-
+  loadImages() {
     PIXI.Loader.shared
       .add([
         '../img/rooms/family.png',
@@ -134,22 +101,120 @@ class Animation {
         '../img/hover/stairs1.png',
         '../img/hover/training1.png',
         '../img/hover/youtful1.png',
+        '../img/bird/bird-straight.json',
+        '../img/bird/bird-flap.json',
       ])
-      .load(setup);
-
-    this.styleTitles();
-    this.playButton.addEventListener('click', this.play.bind(this));
-    this.stopButton.addEventListener('click', this.stop.bind(this));
+      .load(this.setup.bind(this));
   }
 
-  styleTitles() {
-    this.titles.forEach( (title, index) => {
-      const text = title.querySelector('.js-text')
-      const options = this.titlesOptions[index];
+  setup(loader) {
+    const family = new PIXI.Sprite(loader.resources['../img/rooms/family.png'].texture);
+    const floor = new PIXI.Sprite(loader.resources['../img/rooms/floor.png'].texture);
+    const secondFloor = new PIXI.Sprite(loader.resources['../img/rooms/secondFloor.png'].texture);
+    const luxurious = new PIXI.Sprite(loader.resources['../img/rooms/luxurious.png'].texture);
+    const marketing = new PIXI.Sprite(loader.resources['../img/rooms/marketing.png'].texture);
+    const stairs = new PIXI.Sprite(loader.resources['../img/rooms/stairs.png'].texture);
+    const stairsRoom = new PIXI.Sprite(loader.resources['../img/rooms/stairsRoom.png'].texture);
+    const terrace = new PIXI.Sprite(loader.resources['../img/rooms/terrace.png'].texture);
+    const training = new PIXI.Sprite(loader.resources['../img/rooms/training.png'].texture);
+    const windows = new PIXI.Sprite(loader.resources['../img/rooms/windows.png'].texture);
+    const youtful = new PIXI.Sprite(loader.resources['../img/rooms/youtful.png'].texture);
+    const familyHover = new PIXI.Sprite(loader.resources['../img/hover/family1.png'].texture);
+    const luxuriousHover = new PIXI.Sprite(loader.resources['../img/hover/luxurious1.png'].texture);
+    const marketingHover = new PIXI.Sprite(loader.resources['../img/hover/marketing1.png'].texture);
+    const stairsHover = new PIXI.Sprite(loader.resources['../img/hover/stairs1.png'].texture);
+    const trainingHover = new PIXI.Sprite(loader.resources['../img/hover/training1.png'].texture);
+    const youtfulHover = new PIXI.Sprite(loader.resources['../img/hover/youtful1.png'].texture);
 
-      text.style.backgroundColor = options.background;
-      text.style.color = options.color;
-    })
+    this.container.addChild(windows);
+    this.container.addChild(familyHover);
+    this.container.addChild(family);
+    this.container.addChild(floor);
+    this.container.addChild(secondFloor);
+    this.container.addChild(terrace);
+    this.container.addChild(youtfulHover);
+    this.container.addChild(youtful);
+    this.container.addChild(marketingHover);
+    this.container.addChild(marketing);
+    this.container.addChild(trainingHover);
+    this.container.addChild(training);
+    this.container.addChild(stairsHover);
+    this.container.addChild(stairs);
+    this.container.addChild(stairsRoom);
+    this.container.addChild(luxuriousHover);
+    this.container.addChild(luxurious);
+
+    this.hovers = [familyHover, luxuriousHover, marketingHover, stairsHover, trainingHover, youtfulHover];
+    this.interactiveRooms = [family, luxurious, marketing, stairsRoom, training, youtful];
+    this.coordinateRooms();
+    this.addSpriteListaners();
+
+    // Bird
+    // const birdStraightSheet = PIXI.Loader.shared.resources['../img/bird/bird-straight.json'].spritesheet;
+    // const birdFlapSheet = PIXI.Loader.shared.resources['../img/bird/bird-flap.json'].spritesheet;
+    // this.animatedBirdStraight = new PIXI.AnimatedSprite(birdStraightSheet.animations.bird);
+    // this.animatedBirdFlap = new PIXI.AnimatedSprite(birdFlapSheet.animations.bird);
+    
+    // this.animatedBirdStraight.x = 0;
+    // this.animatedBirdStraight.y = this.height- 100;
+    // this.animatedBirdStraight.width = 100;
+    // this.animatedBirdStraight.height = 100;
+    // this.animatedBirdStraight.animationSpeed = 0.5;
+    // this.animatedBirdStraight.play();
+    // this.animatedBirdFlap.x = 400;
+    // this.animatedBirdFlap.y = 0;
+    // this.animatedBirdFlap.animationSpeed = 0.2;
+    // this.animatedBirdFlap.play();
+    // this.canvas.stage.addChild(this.animatedBirdStraight);
+    // this.canvas.stage.addChild(this.animatedBirdFlap);
+    // const path = 'M-20.789,256.739 C11.202,251.688 33.027,174.17 105.7,166.812 169.055,160.397 193.969,180.404 236.403,190.326 282.506,201.055 324.503,194.852 357.807,164.01 437.226,90.459 484.738,-6.225 555.489,5.35';
+    // const arr = Snap.path.toRelative(path);
+    // alert(arr)
+    // this.flyBird()
+
+    // Add empty space
+    const rect = new PIXI.Graphics();
+    rect.drawRect(this.container.width, 0, 200, 200);
+    this.container.addChild(rect);
+
+    this.containerWidth = this.container.width;
+    this.containerHeight = this.container.height;
+    this.resizeContainer();
+  }
+
+  // flyBird() {
+  //   gsap.registerPlugin(MotionPathPlugin);
+
+  //   gsap.to(this.animatedBirdStraight, {
+  //     duration: 5, 
+  //     ease: "power1.inOut",
+  //     motionPath: {
+  //       path: "M-20.789,256.739 C11.202,251.688 33.027,174.17 105.7,166.812 169.055,160.397 193.969,180.404 236.403,190.326 282.506,201.055 324.503,194.852 357.807,164.01 437.226,90.459 484.738,-6.225 555.489,5.35",
+  //       align: "self",
+  //     }
+  //   });
+  // }
+
+  coordinateRooms() {
+    this.container.children.forEach ( (room, index) => {
+      room.scale.set(0.6);
+      if(this.hovers.includes(room)) {
+        room.anchor.set(0.5);
+        room.scale.set(0.52)
+      }
+      room.position.set(this.roomsOptions[index].x, this.roomsOptions[index].y);
+    });
+  }
+
+  addSpriteListaners() {
+    /* eslint no-param-reassign: ["error", { "props": false }] */
+    this.interactiveRooms.forEach ( (room, index) => {
+      room.interactive = true;
+      room.buttonMode = true;
+
+      room.on('pointerover', this.mouseOverRoom.bind(this, this.hovers[index]));
+      room.on('pointerout', this.mouseOutRoom.bind(this, this.hovers[index]));
+    });
   }
 
   resizeContainer() {
@@ -167,29 +232,30 @@ class Animation {
     this.hovers.forEach( (hover, index) => {
       const title = this.titles[index];
       const options = this.titlesOptions[index];
-      let computedStyle = getComputedStyle(title);
+      let currentTitleWidth = title.getBoundingClientRect().width;
 
       let xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth);
       const yPosition = hover.getGlobalPosition().y + (this.container.height * options.y / this.containerHeight);
 
-      if(title.classList.contains('js-rightTitle')) {
-        if(this.width < xPosition + parseFloat(computedStyle.width) + padding) {
+      if (title.classList.contains('js-rightTitle')) {
+
+        if (this.width < xPosition + currentTitleWidth + padding) {
           const newTitleWidth = this.width - xPosition - padding;
           title.style.width = `${newTitleWidth }px`;
-
         } else {
-          title.style.width = `${parseFloat(computedStyle.width) + padding }px`;
+          title.style.width = `${currentTitleWidth + padding }px`;
         }
-      } else if(xPosition - parseFloat(computedStyle.width) - padding <= 0) {
+
+      } else if (xPosition - currentTitleWidth - padding <= 0) {
         const newTitleWidth = xPosition - padding;
         title.style.width = `${newTitleWidth }px`;
 
         xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth) - newTitleWidth;
       } else {
-        title.style.width = `${parseFloat(computedStyle.width) + padding }px`;
-        computedStyle = getComputedStyle(title);
+        title.style.width = `${currentTitleWidth + padding }px`;
+        currentTitleWidth = title.getBoundingClientRect().width;
 
-        xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth) - parseFloat(computedStyle.width);
+        xPosition = hover.getGlobalPosition().x + (this.container.width * options.x / this.containerWidth) - currentTitleWidth;
       }
 
       title.style.left = `${xPosition  }px`;
@@ -197,34 +263,12 @@ class Animation {
     })
   }
 
-  addSpriteListaners() {
-    /* eslint no-param-reassign: ["error", { "props": false }] */
-    this.interactiveRooms.forEach ( (room, index) => {
-      room.interactive = true;
-      room.buttonMode = true;
-
-      room.on('pointerover', this.mouseOverRoom.bind(this, this.hovers[index]));
-      room.on('pointerout', this.mouseOutRoom.bind(this, this.hovers[index]));
-    });
-  }
-
-  coordinateRooms() {
-    this.container.children.forEach ( (room, index) => {
-      room.scale.set(0.6);
-      if(this.hovers.includes(room)) {
-        room.anchor.set(0.5);
-        room.scale.set(0.52)
-      }
-      room.position.set(this.roomsOptions[index].x, this.roomsOptions[index].y);
-    });
-  }
-
   play() {
     this.stopAnimation = false;
 
     this.container.children.forEach ( (room, index) => {
       if(!this.roomsOptions[index]) return;
-      this.flyRoom(room, this.roomsOptions[index].y, this.roomsOptions[index].yPath, this.roomsOptions[index].speed, index);
+      this.flyRoom(room, index);
     });
   }
 
@@ -232,17 +276,17 @@ class Animation {
     this.stopAnimation = true;
   }
 
-  flyRoom(room, yPosition, yPath, speed, index) {
+  flyRoom(room, index) {
     if (this.stopAnimation) {
       return;
     };
 
-    this.roomsOptions[index].timer += speed;
-    const currentTime = this.roomsOptions[index].timer;
-    requestAnimationFrame( this.flyRoom.bind(this, room, yPosition, yPath, speed, index) );
+    const options = this.roomsOptions[index]
+    options.timer += options.speed;
+    requestAnimationFrame( this.flyRoom.bind(this, room, index) );
 
-    const newPositionY = yPath * Math.sin(currentTime) + yPosition;
-    room.position.set(this.roomsOptions[index].x, newPositionY);
+    const newPositionY = options.yPath * Math.sin(options.timer) + options.y;
+    room.y = newPositionY;
   }
 
   mouseOverRoom(hover) {
@@ -293,10 +337,10 @@ class Animation {
   }
 };
 
-const titlesContainer = document.querySelector('.js-titlesContainer')
+const titles = document.querySelectorAll('.js-title')
 const container = document.querySelector('.js-container');
 const playButton = document.querySelector('.js-play');
 const stopButton = document.querySelector('.js-stop');
-const animationControl = new Animation({container, playButton, stopButton, titlesContainer});
+const animationControl = new Animation({container, playButton, stopButton, titles});
 
 sayHello();
