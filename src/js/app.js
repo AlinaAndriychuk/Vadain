@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { contain } from 'intrinsic-scale';
 import gsap from 'gsap';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+// import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import sayHello from './lib/sayHello';
 
 class Animation {
@@ -43,6 +43,15 @@ class Animation {
       {x: -105, y: -60, color: '#525a58', background: '#eedacc'},
       {x: 75, y: -80, color: '#b9987a', background: '#f3ebe0'},
     ];
+
+    this.cloudsOptions = [
+      {x: 100, y: 200},
+      {x: 700, y: 200},
+      {x: 100, y: 550},
+      {x: 700, y: 650},
+      {x: 0, y: 1000},
+      {x: 900, y: 300},
+    ];
     
     this.canvas = new PIXI.Application({
       width: this.width, 
@@ -64,7 +73,6 @@ class Animation {
     this.playButton.addEventListener('click', this.play.bind(this));
     this.stopButton.addEventListener('click', this.stop.bind(this));
 
-    this.canvas.stage.addChild(this.container);
     this.animationContainer.appendChild(this.canvas.view);
 
     this.loadImages();
@@ -101,6 +109,12 @@ class Animation {
         '../img/hover/stairs1.png',
         '../img/hover/training1.png',
         '../img/hover/youtful1.png',
+        '../img/clouds/cloud1.png',
+        '../img/clouds/cloud2.png',
+        '../img/clouds/cloud3.png',
+        '../img/clouds/cloud4.png',
+        '../img/clouds/cloud5.png',
+        '../img/clouds/cloud6.png',
         '../img/bird/bird-straight.json',
         '../img/bird/bird-flap.json',
       ])
@@ -108,6 +122,7 @@ class Animation {
   }
 
   setup(loader) {
+    // Rooms
     const family = new PIXI.Sprite(loader.resources['../img/rooms/family.png'].texture);
     const floor = new PIXI.Sprite(loader.resources['../img/rooms/floor.png'].texture);
     const secondFloor = new PIXI.Sprite(loader.resources['../img/rooms/secondFloor.png'].texture);
@@ -148,6 +163,25 @@ class Animation {
     this.interactiveRooms = [family, luxurious, marketing, stairsRoom, training, youtful];
     this.coordinateRooms();
     this.addSpriteListaners();
+
+    // Clouds
+    const cloud1 = new PIXI.Sprite(loader.resources['../img/clouds/cloud1.png'].texture);
+    const cloud2 = new PIXI.Sprite(loader.resources['../img/clouds/cloud2.png'].texture);
+    const cloud3 = new PIXI.Sprite(loader.resources['../img/clouds/cloud3.png'].texture);
+    const cloud4 = new PIXI.Sprite(loader.resources['../img/clouds/cloud4.png'].texture);
+    const cloud5 = new PIXI.Sprite(loader.resources['../img/clouds/cloud5.png'].texture);
+    const cloud6 = new PIXI.Sprite(loader.resources['../img/clouds/cloud6.png'].texture);
+
+    this.canvas.stage.addChild(cloud1);
+    this.canvas.stage.addChild(cloud3);
+    this.canvas.stage.addChild(cloud4);
+    this.canvas.stage.addChild(cloud5);
+    this.canvas.stage.addChild(cloud6);
+    this.canvas.stage.addChild(this.container);
+    this.canvas.stage.addChild(cloud2);
+
+    this.clouds = [cloud1, cloud2, cloud3, cloud4, cloud5, cloud6];
+    this.coordinateClouds();
 
     // Bird
     // const birdStraightSheet = PIXI.Loader.shared.resources['../img/bird/bird-straight.json'].spritesheet;
@@ -206,6 +240,13 @@ class Animation {
     });
   }
 
+  coordinateClouds() {
+    this.clouds.forEach( (cloud, index) => {
+      cloud.scale.set(0.7)
+      cloud.position.set(this.cloudsOptions[index].x, this.cloudsOptions[index].y);
+    });
+  }
+
   addSpriteListaners() {
     /* eslint no-param-reassign: ["error", { "props": false }] */
     this.interactiveRooms.forEach ( (room, index) => {
@@ -224,6 +265,7 @@ class Animation {
     this.container.position.set(x, y);
     
     this.changeTitles();
+    this.changeClouds();
   }
 
   changeTitles() {
@@ -263,12 +305,26 @@ class Animation {
     })
   }
 
+  changeClouds() {
+    this.clouds.forEach( cloud => {
+      const proportionalWidth = this.container.width * 0.7 / this.containerWidth ;
+      const newHeight = this.container.height * cloud.height / this.containerHeight;
+
+      const coefficient = Math.max(proportionalWidth, 0.3);
+      cloud.scale.set(coefficient)
+    })
+  }
+
   play() {
     this.stopAnimation = false;
 
     this.container.children.forEach ( (room, index) => {
       if(!this.roomsOptions[index]) return;
-      this.flyRoom(room, index);
+      this.moveRooms(room, index);
+    });
+
+    this.clouds.forEach ( (cloud, index) => {
+      this.moveClouds(cloud, index);
     });
   }
 
@@ -276,17 +332,39 @@ class Animation {
     this.stopAnimation = true;
   }
 
-  flyRoom(room, index) {
+  moveRooms(room, index) {
     if (this.stopAnimation) {
       return;
     };
 
-    const options = this.roomsOptions[index]
-    options.timer += options.speed;
-    requestAnimationFrame( this.flyRoom.bind(this, room, index) );
-
+    const options = this.roomsOptions[index];
     const newPositionY = options.yPath * Math.sin(options.timer) + options.y;
-    room.y = newPositionY;
+
+    room.position.y = newPositionY;
+    options.timer += options.speed;
+    requestAnimationFrame( this.moveRooms.bind(this, room, index) );
+  }
+
+  moveClouds(cloud, index) {
+    if (this.stopAnimation) {
+      return;
+    };
+
+    const options = this.cloudsOptions[index];
+    let newPositionY;
+    let newPositionX;
+
+    if(cloud.y < -cloud.height){
+      newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
+      newPositionX = -cloud.width;
+    } else {
+      newPositionY = cloud.y - 0.3;
+      newPositionX = cloud.x + 0.3;
+    }
+
+    cloud.position.set(newPositionX, newPositionY);
+    options.timer += options.speed;
+    requestAnimationFrame( this.moveClouds.bind(this, cloud, index) );
   }
 
   mouseOverRoom(hover) {
