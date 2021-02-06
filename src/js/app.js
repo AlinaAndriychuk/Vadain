@@ -370,8 +370,8 @@ class Animation {
       newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
       newPositionX = -cloud.width;
     } else {
-      newPositionY = cloud.y - 3;
-      newPositionX = cloud.x + 3;
+      newPositionY = cloud.y - 0.3;
+      newPositionX = cloud.x + 0.3;
     }
 
     cloud.position.set(newPositionX, newPositionY);
