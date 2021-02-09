@@ -1,21 +1,26 @@
 import * as PIXI from 'pixi.js';
 import { contain } from 'intrinsic-scale';
 import gsap from 'gsap';
-// import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { pathParse, serializePath } from 'svg-path-parse';
 import sayHello from './lib/sayHello';
 
 class Animation {
 
-  constructor({container, playButton, stopButton, titles}) {
+  constructor({container, playButton, stopButton, titles, birdBlock}) {
     this.animationContainer = container;
     this.titles = titles;
     this.width = this.animationContainer.clientWidth;
     this.height = this.animationContainer.clientHeight;
     this.playButton = playButton;
     this.stopButton = stopButton;
+    this.birdBlock = birdBlock;
     this.stopAnimation = false;
     this.previousWidth = this.width;
     this.previousHeight = this.height;
+    this.birdNormalPath = 'M-91.5,1080.5c307-30,344-364,594-413c257.74-50.52,586,209.98,911.44-55.31C1667.5,405.5,1696-24.36,2049.5-61.5';
+    this.pathNormalHeight = 1080;
+    this.pathNormalWidth = 1920;
 
     this.roomsOptions = [
       {x: 730, y: 10, yPath: 10, speed: 0.01, timer: 0},
@@ -186,27 +191,25 @@ class Animation {
     this.coordinateClouds();
 
     // Bird
-    // const birdStraightSheet = PIXI.Loader.shared.resources['../img/bird/bird-straight.json'].spritesheet;
-    // const birdFlapSheet = PIXI.Loader.shared.resources['../img/bird/bird-flap.json'].spritesheet;
-    // this.animatedBirdStraight = new PIXI.AnimatedSprite(birdStraightSheet.animations.bird);
-    // this.animatedBirdFlap = new PIXI.AnimatedSprite(birdFlapSheet.animations.bird);
-    
-    // this.animatedBirdStraight.x = 0;
-    // this.animatedBirdStraight.y = this.height- 100;
-    // this.animatedBirdStraight.width = 100;
-    // this.animatedBirdStraight.height = 100;
-    // this.animatedBirdStraight.animationSpeed = 0.5;
-    // this.animatedBirdStraight.play();
-    // this.animatedBirdFlap.x = 400;
-    // this.animatedBirdFlap.y = 0;
-    // this.animatedBirdFlap.animationSpeed = 0.2;
-    // this.animatedBirdFlap.play();
-    // this.canvas.stage.addChild(this.animatedBirdStraight);
-    // this.canvas.stage.addChild(this.animatedBirdFlap);
-    // const path = 'M-20.789,256.739 C11.202,251.688 33.027,174.17 105.7,166.812 169.055,160.397 193.969,180.404 236.403,190.326 282.506,201.055 324.503,194.852 357.807,164.01 437.226,90.459 484.738,-6.225 555.489,5.35';
-    // const arr = Snap.path.toRelative(path);
-    // alert(arr)
-    // this.flyBird()
+    this.birdStraightSheet = PIXI.Loader.shared.resources['../img/bird/bird-straight.json'].spritesheet.animations.bird;
+    this.birdFlapSheet = PIXI.Loader.shared.resources['../img/bird/bird-flap.json'].spritesheet.animations.bird;
+
+    this.animatedBird = new PIXI.AnimatedSprite(this.birdFlapSheet);
+    this.animatedBird.animationSpeed = 0.3;
+    this.animatedBird.play();
+    const counter = 0;
+    this.animatedBird.loop = true;
+    // this.animatedBird.onLoop = () => {
+    //   console.log(29)
+    //   if (counter % 20 === 0) {
+    //     this.animatedBird.textures = (this.animatedBird.textures !== this.birdStraightSheet) ? this.birdFlapSheet : this.birdStraightSheet;
+    //   }
+    //   this.animatedBird.play();
+    //   console.log(29)
+    //   counter++ 
+    // }
+    this.canvas.stage.addChild(this.animatedBird);
+    this.timeline = this.createBirdAnimation()
 
     // Add empty space
     const rect = new PIXI.Graphics();
@@ -217,19 +220,6 @@ class Animation {
     this.containerHeight = this.container.height;
     this.resizeContainer();
   }
-
-  // flyBird() {
-  //   gsap.registerPlugin(MotionPathPlugin);
-
-  //   gsap.to(this.animatedBirdStraight, {
-  //     duration: 5, 
-  //     ease: "power1.inOut",
-  //     motionPath: {
-  //       path: "M-20.789,256.739 C11.202,251.688 33.027,174.17 105.7,166.812 169.055,160.397 193.969,180.404 236.403,190.326 282.506,201.055 324.503,194.852 357.807,164.01 437.226,90.459 484.738,-6.225 555.489,5.35",
-  //       align: "self",
-  //     }
-  //   });
-  // }
 
   coordinateRooms() {
     this.container.children.forEach ( (room, index) => {
@@ -244,8 +234,6 @@ class Animation {
 
   coordinateClouds() {
     this.clouds.forEach( (cloud, index) => {
-      // const xPosition = this.cloudsOptions[index].x * this.width / 100;
-      // const yPosition = this.cloudsOptions[index].y * this.height / 100;
       const xPosition = this.cloudsOptions[index].x;
       const yPosition = this.cloudsOptions[index].y;
       cloud.anchor.set(0.5);
@@ -272,6 +260,9 @@ class Animation {
     
     this.changeTitles();
     this.changeClouds();
+    this.resizeBirdPath();
+    this.changeBird();
+    this.updateTimeline();
   }
 
   changeTitles() {
@@ -324,6 +315,48 @@ class Animation {
     })
   }
 
+  resizeBirdPath() {
+    const parsedPath = pathParse(this.birdNormalPath).getSegments();
+    parsedPath.segments = parsedPath.segments.map( segment => {
+      const newSegment = [];
+
+      segment.forEach( (element, index) => {
+        newSegment.push(this.changeSegment(element, index));
+      });
+
+      return newSegment;
+    })
+
+    this.birdPath = serializePath(parsedPath);
+  }
+
+  changeSegment(element, index) {
+    if ( index === 0 ) {
+      return element;
+    }
+    if ( index % 2 === 0 ) {
+      return element * this.height / this.pathNormalHeight;
+    }
+    return element * this.width / this.pathNormalWidth;
+  }
+
+  changeBird() {
+    const proportionalContainerWidth = this.container.width * 0.25 / this.containerWidth ;
+    const scaleCoefficient = Math.max(proportionalContainerWidth, 0.1);
+
+    this.animatedBird.scale.set(scaleCoefficient);
+    this.animatedBird.x = -this.animatedBird.width;
+    this.animatedBird.y = this.height - this.animatedBird.height / 2;
+  }
+
+  updateTimeline() {
+    const progress = this.timeline.progress();
+    this.timeline.clear();
+    this.timeline = this.createBirdAnimation();
+    this.timeline.progress(progress);
+    this.timeline.play();
+  }
+
   play() {
     this.stopAnimation = false;
 
@@ -335,6 +368,8 @@ class Animation {
     this.clouds.forEach ( (cloud, index) => {
       this.moveClouds(cloud, index);
     });
+
+    this.timeline.play();
   }
 
   stop() {
@@ -377,6 +412,65 @@ class Animation {
     cloud.position.set(newPositionX, newPositionY);
     options.timer += options.speed;
     requestAnimationFrame( this.moveClouds.bind(this, cloud, index) );
+  }
+
+  createBirdAnimation() {
+    gsap.registerPlugin(MotionPathPlugin);
+
+    return gsap.timeline()
+    .repeat(-1)
+    .paused(true)
+    .to( this.animatedBird, {
+      duration: 14,
+      ease: 'power1.inOut',
+      motionPath: {
+        path: this.birdPath,
+        align: 'self',
+      }
+    })
+    .to(this.birdBlock, {
+      duration: 14,
+      ease: 'power1.inOut',
+      onUpdate: () => {
+        this.updateRotation();
+      },
+      motionPath: {
+        path: this.birdPath,
+        autoRotate: true,
+      }
+    }, 0)
+    // .to(this.animatedBirdFlap, {
+    //   scale: 0,
+    //   duration: 0,
+    // }, 4.7)
+    // .to(this.animatedBirdStraight.scale, {
+    //   x: 0.25,
+    //   y: 0.25,
+    //   duration: 0,
+    // })
+    // .to(this.animatedBirdStraight, {
+    //   scale: 0,
+    //   duration: 0,
+    // }, 6)
+    // .to(this.animatedBirdFlap.scale, {
+    //   x: 0.25,
+    //   y: 0.25,
+    //   duration: 0,
+    // }, 6)
+    // .to(this.animatedBirdFlap, {
+    //   scale: 0,
+    //   duration: 0,
+    // }, 8)
+    // .to(this.animatedBirdStraight.scale, {
+    //   x: 0.25,
+    //   y: 0.25,
+    //   duration: 0,
+    // }, 8)
+  }
+
+  updateRotation() {
+    const rotation = (gsap.getProperty(this.birdBlock, 'rotation') + 90)  * Math.PI / 180;
+    this.animatedBird.rotation = rotation;
   }
 
   mouseOverRoom(hover) {
@@ -429,10 +523,11 @@ class Animation {
   }
 };
 
+const birdBlock = document.querySelector('.js-birdRotation');
 const titles = document.querySelectorAll('.js-title')
 const container = document.querySelector('.js-container');
 const playButton = document.querySelector('.js-play');
 const stopButton = document.querySelector('.js-stop');
-const animationControl = new Animation({container, playButton, stopButton, titles});
+const animationControl = new Animation({container, playButton, stopButton, titles, birdBlock});
 
 sayHello();

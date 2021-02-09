@@ -74,6 +74,7 @@
   "dependencies": {
     "gsap": "^3.6.0",
     "intrinsic-scale": "^3.0.4",
-    "pixi.js": "^5.3.7"
+    "pixi.js": "^5.3.7",
+    "svg-path-parse": "^1.1.3"
   }
 }
