@@ -15,12 +15,13 @@ class Animation {
     this.playButton = playButton;
     this.stopButton = stopButton;
     this.birdBlock = birdBlock;
-    this.stopAnimation = false;
+    this.playAnimation = false;
     this.previousWidth = this.width;
     this.previousHeight = this.height;
-    this.birdNormalPath = 'M-91.5,1080.5c307-30,344-364,594-413c257.74-50.52,586,209.98,911.44-55.31C1667.5,405.5,1696-24.36,2049.5-61.5';
+    this.birdNormalPath = 'M-147,1082.8C249,1123,207,655,529,611c250.1-34.2,522,228,818,84S1705,0,2149,0';
     this.pathNormalHeight = 1080;
     this.pathNormalWidth = 1920;
+    this.birdCounter = 0;
 
     this.roomsOptions = [
       {x: 730, y: 10, yPath: 10, speed: 0.01, timer: 0},
@@ -128,25 +129,48 @@ class Animation {
       .load(this.setup.bind(this));
   }
 
-  setup(loader) {
+  setup() {
     // Rooms
-    const family = new PIXI.Sprite(loader.resources['../img/rooms/family.png'].texture);
-    const floor = new PIXI.Sprite(loader.resources['../img/rooms/floor.png'].texture);
-    const secondFloor = new PIXI.Sprite(loader.resources['../img/rooms/secondFloor.png'].texture);
-    const luxurious = new PIXI.Sprite(loader.resources['../img/rooms/luxurious.png'].texture);
-    const marketing = new PIXI.Sprite(loader.resources['../img/rooms/marketing.png'].texture);
-    const stairs = new PIXI.Sprite(loader.resources['../img/rooms/stairs.png'].texture);
-    const stairsRoom = new PIXI.Sprite(loader.resources['../img/rooms/stairsRoom.png'].texture);
-    const terrace = new PIXI.Sprite(loader.resources['../img/rooms/terrace.png'].texture);
-    const training = new PIXI.Sprite(loader.resources['../img/rooms/training.png'].texture);
-    const windows = new PIXI.Sprite(loader.resources['../img/rooms/windows.png'].texture);
-    const youtful = new PIXI.Sprite(loader.resources['../img/rooms/youtful.png'].texture);
-    const familyHover = new PIXI.Sprite(loader.resources['../img/hover/family1.png'].texture);
-    const luxuriousHover = new PIXI.Sprite(loader.resources['../img/hover/luxurious1.png'].texture);
-    const marketingHover = new PIXI.Sprite(loader.resources['../img/hover/marketing1.png'].texture);
-    const stairsHover = new PIXI.Sprite(loader.resources['../img/hover/stairs1.png'].texture);
-    const trainingHover = new PIXI.Sprite(loader.resources['../img/hover/training1.png'].texture);
-    const youtfulHover = new PIXI.Sprite(loader.resources['../img/hover/youtful1.png'].texture);
+    this.setupRooms();
+    this.coordinateRooms();
+    this.addSpriteListaners();
+
+    // Clouds
+    this.setupClouds();
+    this.coordinateClouds();
+
+    // Bird
+    this.setupBird();
+    this.timeline = this.createBirdAnimation();
+
+    // Add empty space
+    const rect = new PIXI.Graphics();
+    rect.drawRect(this.container.width, 0, 200, 200);
+    this.container.addChild(rect);
+
+    this.containerWidth = this.container.width;
+    this.containerHeight = this.container.height;
+    this.resizeContainer();
+  }
+
+  setupRooms() {
+    const family = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/family.png'].texture);
+    const floor = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/floor.png'].texture);
+    const secondFloor = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/secondFloor.png'].texture);
+    const luxurious = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/luxurious.png'].texture);
+    const marketing = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/marketing.png'].texture);
+    const stairs = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/stairs.png'].texture);
+    const stairsRoom = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/stairsRoom.png'].texture);
+    const terrace = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/terrace.png'].texture);
+    const training = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/training.png'].texture);
+    const windows = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/windows.png'].texture);
+    const youtful = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/rooms/youtful.png'].texture);
+    const familyHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/family1.png'].texture);
+    const luxuriousHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/luxurious1.png'].texture);
+    const marketingHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/marketing1.png'].texture);
+    const stairsHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/stairs1.png'].texture);
+    const trainingHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/training1.png'].texture);
+    const youtfulHover = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/hover/youtful1.png'].texture);
 
     this.container.addChild(windows);
     this.container.addChild(familyHover);
@@ -168,16 +192,15 @@ class Animation {
 
     this.hovers = [familyHover, luxuriousHover, marketingHover, stairsHover, trainingHover, youtfulHover];
     this.interactiveRooms = [family, luxurious, marketing, stairsRoom, training, youtful];
-    this.coordinateRooms();
-    this.addSpriteListaners();
+  }
 
-    // Clouds
-    const cloud1 = new PIXI.Sprite(loader.resources['../img/clouds/cloud1.png'].texture);
-    const cloud2 = new PIXI.Sprite(loader.resources['../img/clouds/cloud2.png'].texture);
-    const cloud3 = new PIXI.Sprite(loader.resources['../img/clouds/cloud3.png'].texture);
-    const cloud4 = new PIXI.Sprite(loader.resources['../img/clouds/cloud4.png'].texture);
-    const cloud5 = new PIXI.Sprite(loader.resources['../img/clouds/cloud5.png'].texture);
-    const cloud6 = new PIXI.Sprite(loader.resources['../img/clouds/cloud6.png'].texture);
+  setupClouds() {
+    const cloud1 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud1.png'].texture);
+    const cloud2 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud2.png'].texture);
+    const cloud3 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud3.png'].texture);
+    const cloud4 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud4.png'].texture);
+    const cloud5 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud5.png'].texture);
+    const cloud6 = new PIXI.Sprite(PIXI.Loader.shared.resources['../img/clouds/cloud6.png'].texture);
 
     this.canvas.stage.addChild(cloud1);
     this.canvas.stage.addChild(cloud3);
@@ -188,37 +211,14 @@ class Animation {
     this.canvas.stage.addChild(cloud2);
 
     this.clouds = [cloud1, cloud2, cloud3, cloud4, cloud5, cloud6];
-    this.coordinateClouds();
+  }
 
-    // Bird
+  setupBird() {
     this.birdStraightSheet = PIXI.Loader.shared.resources['../img/bird/bird-straight.json'].spritesheet.animations.bird;
     this.birdFlapSheet = PIXI.Loader.shared.resources['../img/bird/bird-flap.json'].spritesheet.animations.bird;
-
     this.animatedBird = new PIXI.AnimatedSprite(this.birdFlapSheet);
-    this.animatedBird.animationSpeed = 0.3;
-    this.animatedBird.play();
-    const counter = 0;
-    this.animatedBird.loop = true;
-    // this.animatedBird.onLoop = () => {
-    //   console.log(29)
-    //   if (counter % 20 === 0) {
-    //     this.animatedBird.textures = (this.animatedBird.textures !== this.birdStraightSheet) ? this.birdFlapSheet : this.birdStraightSheet;
-    //   }
-    //   this.animatedBird.play();
-    //   console.log(29)
-    //   counter++ 
-    // }
+    this.animatedBird.animationSpeed = 0.4;
     this.canvas.stage.addChild(this.animatedBird);
-    this.timeline = this.createBirdAnimation()
-
-    // Add empty space
-    const rect = new PIXI.Graphics();
-    rect.drawRect(this.container.width, 0, 200, 200);
-    this.container.addChild(rect);
-
-    this.containerWidth = this.container.width;
-    this.containerHeight = this.container.height;
-    this.resizeContainer();
   }
 
   coordinateRooms() {
@@ -261,7 +261,6 @@ class Animation {
     this.changeTitles();
     this.changeClouds();
     this.resizeBirdPath();
-    this.changeBird();
     this.updateTimeline();
   }
 
@@ -347,18 +346,42 @@ class Animation {
     this.animatedBird.scale.set(scaleCoefficient);
     this.animatedBird.x = -this.animatedBird.width;
     this.animatedBird.y = this.height - this.animatedBird.height / 2;
+
+    if (this.playAnimation) {
+      this.animatedBird.onLoop = this.changeBirdTexture.bind(this);
+      this.animatedBird.play();
+    }
   }
 
   updateTimeline() {
+    this.changeBird();
     const progress = this.timeline.progress();
     this.timeline.clear();
     this.timeline = this.createBirdAnimation();
     this.timeline.progress(progress);
-    this.timeline.play();
+
+    if (this.playAnimation) {
+      this.timeline.play();
+    }
+  }
+
+  changeBirdTexture() {
+    if (!this.playAnimation) {
+      return
+    } if(this.birdCounter === 6 || this.birdCounter === 16 || this.birdCounter === 23 || this.birdCounter === 27) {
+      this.animatedBird.textures = (this.animatedBird.textures === this.birdFlapSheet) ? this.birdStraightSheet : this.birdFlapSheet;
+      this.animatedBird.play()
+    } else if (this.birdCounter > 27) {
+      this.birdCounter = 0
+    }
+    this.birdCounter += 1;
   }
 
   play() {
-    this.stopAnimation = false;
+    if (this.playAnimation) {
+      return
+    }
+    this.playAnimation = true;
 
     this.container.children.forEach ( (room, index) => {
       if(!this.roomsOptions[index]) return;
@@ -369,15 +392,17 @@ class Animation {
       this.moveClouds(cloud, index);
     });
 
-    this.timeline.play();
+    this.updateTimeline();
   }
 
   stop() {
-    this.stopAnimation = true;
+    this.playAnimation = false;
+    this.timeline.pause();
+    this.animatedBird.stop();
   }
 
   moveRooms(room, index) {
-    if (this.stopAnimation) {
+    if (!this.playAnimation) {
       return;
     };
 
@@ -390,7 +415,7 @@ class Animation {
   }
 
   moveClouds(cloud, index) {
-    if (this.stopAnimation) {
+    if (!this.playAnimation) {
       return;
     };
 
@@ -422,7 +447,7 @@ class Animation {
     .paused(true)
     .to( this.animatedBird, {
       duration: 14,
-      ease: 'power1.inOut',
+      ease: 'none',
       motionPath: {
         path: this.birdPath,
         align: 'self',
@@ -430,7 +455,7 @@ class Animation {
     })
     .to(this.birdBlock, {
       duration: 14,
-      ease: 'power1.inOut',
+      ease: 'none',
       onUpdate: () => {
         this.updateRotation();
       },
@@ -439,33 +464,6 @@ class Animation {
         autoRotate: true,
       }
     }, 0)
-    // .to(this.animatedBirdFlap, {
-    //   scale: 0,
-    //   duration: 0,
-    // }, 4.7)
-    // .to(this.animatedBirdStraight.scale, {
-    //   x: 0.25,
-    //   y: 0.25,
-    //   duration: 0,
-    // })
-    // .to(this.animatedBirdStraight, {
-    //   scale: 0,
-    //   duration: 0,
-    // }, 6)
-    // .to(this.animatedBirdFlap.scale, {
-    //   x: 0.25,
-    //   y: 0.25,
-    //   duration: 0,
-    // }, 6)
-    // .to(this.animatedBirdFlap, {
-    //   scale: 0,
-    //   duration: 0,
-    // }, 8)
-    // .to(this.animatedBirdStraight.scale, {
-    //   x: 0.25,
-    //   y: 0.25,
-    //   duration: 0,
-    // }, 8)
   }
 
   updateRotation() {
