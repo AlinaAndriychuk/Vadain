@@ -53,12 +53,12 @@ class Animation {
     ];
 
     this.cloudsOptions = [
-      {x: 150, y: 400},
-      {x: 600, y: 600},
-      {x: 150, y: 800},
-      {x: 850, y: 770},
-      {x: 350, y: 1600},
-      {x: 100, y: 1500},
+      {x: 20, y: 45, speed: 0.35},
+      {x: 40, y: 67, speed: 0.35},
+      {x: 25, y: 90, speed: 0.2},
+      {x: 55, y: 95, speed: 0.2},
+      {x: 90, y: 80, speed: 0.3},
+      {x: 80, y: 45, speed: 0.3},
     ];
     
     this.canvas = new PIXI.Application({
@@ -234,9 +234,11 @@ class Animation {
 
   coordinateClouds() {
     this.clouds.forEach( (cloud, index) => {
-      const xPosition = this.cloudsOptions[index].x;
-      const yPosition = this.cloudsOptions[index].y;
-      cloud.anchor.set(0.5);
+      const xPosition = this.cloudsOptions[index].x * this.width / 100;
+      const yPosition = this.cloudsOptions[index].y * this.height / 100;
+      this.cloudsOptions[index].normalX = xPosition;
+      this.cloudsOptions[index].normalY = yPosition;
+      cloud.anchor.set(1)
       cloud.position.set(xPosition, yPosition);
     });
   }
@@ -303,14 +305,15 @@ class Animation {
 
   changeClouds() {
     this.clouds.forEach( cloud => {
-      const proportionalContainerWidth = this.container.width * 0.7 / this.containerWidth ;
+      const proportionalContainerWidth = this.container.width * 0.65 / this.containerWidth ;
 
-      const scaleCoefficient = Math.max(proportionalContainerWidth, 0.3);
-      cloud.scale.set(scaleCoefficient);
+      this.cloudScale = Math.max(proportionalContainerWidth, 0.1);
+      cloud.scale.set(this.cloudScale);
 
       const xPosition = cloud.x * this.width / this.previousWidth;
       const yPosition = cloud.y * this.height / this.previousHeight;
       cloud.position.set(xPosition, yPosition);
+      cloud.anchor.set(1)
     })
   }
 
@@ -423,19 +426,21 @@ class Animation {
     let newPositionY;
     let newPositionX;
 
-    if (cloud.y < -cloud.height) {
-      newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
-      newPositionX = -cloud.width;
-    } else if (cloud.x - cloud.width > this.width) {
-      newPositionY = options.y * (cloud.width + cloud.x) / (cloud.x - options.x);
-      newPositionX = -cloud.width;
+    if (cloud.y < 0) {
+      newPositionY = options.y * this.height / 100 * cloud.x / (cloud.x - options.x * this.width / 100);
+      newPositionX = 0;
+    } else if (cloud.x > this.width + cloud.width) {
+      newPositionX = cloud.x - (cloud.x - options.x * this.width / 100) * (this.height + cloud.height - cloud.y) / (options.y * this.height / 100 - cloud.y);
+      newPositionY = this.height + cloud.height;
+    } else if (this.width > this.height) {
+      newPositionY = cloud.y - this.cloudScale * options.speed;
+      newPositionX = cloud.x + this.width / this.height * this.cloudScale * options.speed;
     } else {
-      newPositionY = cloud.y - 0.3;
-      newPositionX = cloud.x + 0.3;
+      newPositionX = cloud.x + this.cloudScale * options.speed;;
+      newPositionY = cloud.y - this.height / this.width * this.cloudScale * options.speed;;
     }
-
+    
     cloud.position.set(newPositionX, newPositionY);
-    options.timer += options.speed;
     requestAnimationFrame( this.moveClouds.bind(this, cloud, index) );
   }
 
