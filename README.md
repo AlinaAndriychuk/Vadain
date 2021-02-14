@@ -1,4 +1,4 @@
-#Demo
+# Vadain
 [Link](https://vadain.netlify.app/)
 
 #How to use
@@ -59,6 +59,3 @@ You can also use [npm scripts](https://docs.npmjs.com/misc/scripts):
 * `npm run ghpages` to push only `./build` folder to **gh-pages** branch on github (very useful for previews).
 * `npm run lint` - linting javascript with **eslint**.
 * `npm run lint-fix` - fix as many issues as possible relatives to **eslint** settings.
-
-
-# Vadain
