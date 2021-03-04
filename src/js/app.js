@@ -4,16 +4,15 @@ import gsap from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { pathParse, serializePath } from 'svg-path-parse';
 import sayHello from './lib/sayHello';
+import Preloader from './lib/preloader';
 
 class Animation {
 
-  constructor({container, playButton, stopButton, titles, birdBlock}) {
+  constructor({container, titles, birdBlock}) {
     this.animationContainer = container;
     this.titles = titles;
     this.width = this.animationContainer.clientWidth;
     this.height = this.animationContainer.clientHeight;
-    this.playButton = playButton;
-    this.stopButton = stopButton;
     this.birdBlock = birdBlock;
     this.playAnimation = false;
     this.previousWidth = this.width;
@@ -22,6 +21,10 @@ class Animation {
     this.pathNormalHeight = 1080;
     this.pathNormalWidth = 1920;
     this.birdCounter = 0;
+
+    this.preloader = new Preloader();
+    this.imagesLength = 25;
+    this.imagesCounter = 0;
 
     this.roomsOptions = [
       {x: 730, y: 10, yPath: 10, speed: 0.01, timer: 0},
@@ -72,15 +75,11 @@ class Animation {
     });
 
     this.container = new PIXI.Container();
-
     this.init()
   }
 
   init() {
     window.addEventListener("resize", this.resize.bind(this));
-    this.playButton.addEventListener('click', this.play.bind(this));
-    this.stopButton.addEventListener('click', this.stop.bind(this));
-
     this.animationContainer.appendChild(this.canvas.view);
 
     this.loadImages();
@@ -151,6 +150,9 @@ class Animation {
     this.containerWidth = this.container.width;
     this.containerHeight = this.container.height;
     this.resizeContainer();
+
+    this.preloader.stop();
+    this.play();
   }
 
   setupRooms() {
@@ -363,7 +365,7 @@ class Animation {
     this.timeline = this.createBirdAnimation();
     this.timeline.progress(progress);
 
-    if (this.playAnimation) {
+    if(this.playAnimation) {
       this.timeline.play();
     }
   }

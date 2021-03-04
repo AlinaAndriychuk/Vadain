@@ -12,6 +12,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Rufina:wght@700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- BEGIN preloader -->
+    <div class="preloader js-preloader">
+        <div class="loader js-circle"></div>
+        <div class="loader loader_second js-circle"></div>
+        <div class="loader loader_third js-circle"></div>
+        <div class="loader loader_forth js-circle"></div>
+        <div class="loader loader_fifth js-circle"></div>
+        <p class="preloader__text js-loaderText">Loading</p>
+        <div class="preloader__text-rect"></div>
+        <div class="preloader__hover js-hover"></div>
+    </div>
+    <!-- END preloader -->
     <!-- BEGIN animation -->
     <div class="animation">
       <!-- BEGIN animation-canvas -->
@@ -19,10 +31,6 @@
         <div class="js-birdRotation"></div>
       </div>
       <!-- END animation-canvas -->
-      <div class="animation-controls">
-        <button class="animation-controls__button js-play">Play</button>
-        <button class="animation-controls__button js-stop">Stop</button>
-      </div>
       <!-- BEGIN animation-titles -->
       <div class="animation-titles js-titlesContainer">
         <div class="animation-titles__wrapper js-title">
