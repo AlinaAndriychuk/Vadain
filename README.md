@@ -1,3 +1,6 @@
+# Vadain
+[Link](https://vadain.netlify.app/page.html)
+
 #How to use
 
 Clone this repo and then in command line type:
@@ -56,6 +59,3 @@ You can also use [npm scripts](https://docs.npmjs.com/misc/scripts):
 * `npm run ghpages` to push only `./build` folder to **gh-pages** branch on github (very useful for previews).
 * `npm run lint` - linting javascript with **eslint**.
 * `npm run lint-fix` - fix as many issues as possible relatives to **eslint** settings.
-
-
-# Vadain
