@@ -30,34 +30,6 @@ class Preloader {
     })
   }
 
-  
-  // moveLoader() {
-  //   this.timeline = gsap.timeline()
-  //   .to(this.letters, {
-  //     duration: 1,
-  //     y: 30,
-  //     repeat: -1,
-  //     ease: "slow(0.1, 0.7, true)",
-  //     stagger: {
-  //       amount: 1
-  //     }
-  //   })
-    
-  //   this.circles.forEach( circle => {
-  //     this.timeline.to(circle, {
-  //       duration: 2,
-  //       x: "+=700%",
-  //       ease: 'power1.inOut',
-  //       repeat: -1,
-  //       borderRadius: 0,
-  //       rotation: 360,
-  //       yoyo: true 
-  //     }, this.delay)
-
-  //     this.delay += this.delayAdditive;
-  //   })
-  // }
-
   stop() {
     gsap.to([this.letters, this.circles], {
       opacity: 0,

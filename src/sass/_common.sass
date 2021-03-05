@@ -7,6 +7,16 @@
   background-color: $mainTheme
   z-index: 100
 
+  &__container
+    position: absolute
+    top: calc( 46% + 4vw )
+    left: 50%
+    height: 70px
+    transform: translate(-50%, -50%)
+
+    +r(800)
+      top: calc( 46% + 35px )
+
   &__hover
     position: relative
     top: 100%
@@ -15,41 +25,40 @@
     background-color: $darkGray
 
   &__text
-    position: absolute
-    top: 55%
+    position: relative
     left: 50%
+    transform: translate(-50%)
     width: fit-content
 
     font-family: 'Rufina', Arial, serif;
     font-size: 28px
+    line-height: 70px
     color: $darkGray
     letter-spacing: 1px
 
-    transform: translate(-50%, -50%)
     display: flex
 
     +r(1600)
       font-size: 22px
 
+
   &__text-rect
     position: absolute
-    top: 57%
-    left: 40%
+    top: 0
+    left: 50%
     width: 200px
-    height: 70px
+    height: 100%
 
-    // border: 1px solid black
     background-color: $mainTheme
-
     animation: slide 4s ease-in-out infinite
 
 .loader
   position: absolute
-  top: 50%
+  top: 46%
   left: 50%
   width: 1.5vw
   height: 1.5vw
-  transform: translate(-400%, -50%)
+  opacity: 0
 
   border: $mainTheme 0.1vw solid
   border-radius: 50%
@@ -89,9 +98,9 @@
 
 @keyframes slide
   0%
-    transform: translate(-100%, -50%)
+    transform: translate(-100%)
   100%
-    transform: translate(150%, -50%)
+    transform: translate(150%)
   
 .animation
   background-color: $mainTheme
