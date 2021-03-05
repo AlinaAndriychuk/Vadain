@@ -1,5 +1,5 @@
 # Vadain
-[Link](https://vadain.netlify.app/page.html)
+[Link](https://vadain-app.netlify.app/)
 
 #How to use
 
