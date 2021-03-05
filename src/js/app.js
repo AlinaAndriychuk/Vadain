@@ -151,7 +151,7 @@ class Animation {
     this.containerHeight = this.container.height;
     this.resizeContainer();
 
-    // this.preloader.stop();
+    this.preloader.stop();
     this.play();
   }
 
