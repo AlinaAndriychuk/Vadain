@@ -48,6 +48,7 @@
     left: 50%
     width: 200px
     height: 100%
+    transition: translate(-200%)
 
     background-color: $mainTheme
     animation: slide 4s ease-in-out infinite
@@ -98,9 +99,9 @@
 
 @keyframes slide
   0%
-    transform: translate(-100%)
+    transform: translate(-200%)
   100%
-    transform: translate(150%)
+    transform: translate(100%)
   
 .animation
   background-color: $mainTheme
